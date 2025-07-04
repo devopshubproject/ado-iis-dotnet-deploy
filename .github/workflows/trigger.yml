@@ -1,0 +1,24 @@
+name: Trigger Azure DevOps Pipeline
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  trigger-azure-pipeline:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Trigger Azure DevOps Pipeline
+        uses: actions/http-client@v1
+        env:
+          AZURE_DEVOPS_ORG: https://dev.azure.com/LadvikSolutions/
+          AZURE_DEVOPS_PROJECT: Ladvik
+          AZURE_DEVOPS_PIPELINE_ID: 3
+          AZURE_DEVOPS_PAT: ${{ secrets.AZURE_DEVOPS_PAT }}
+        run: |
+          curl -u :$AZURE_DEVOPS_PAT \
+            -X POST \
+            -H "Content-Type: application/json" \
+            "https://dev.azure.com/$AZURE_DEVOPS_ORG/$AZURE_DEVOPS_PROJECT/_apis/pipelines/$AZURE_DEVOPS_PIPELINE_ID/runs?api-version=7.0-preview.1" \
+            -d '{}'
