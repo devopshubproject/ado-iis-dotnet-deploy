@@ -79,7 +79,7 @@ jobs:
             ${{ steps.plan.outputs.stdout }}
             ```
 
-  apply:
+  apply_destroy:
     if: github.ref == 'refs/heads/main'
     needs: terraform
     runs-on: ubuntu-latest
