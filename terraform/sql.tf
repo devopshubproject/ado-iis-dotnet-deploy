@@ -1,6 +1,6 @@
 ### SQL Server and Database Configuration
 
-resource "azurerm_sql_server" "sql" {
+resource "azurerm_mssql_server" "sql" {
   name                         = "sqlserversecureiis"
   resource_group_name          = azurerm_resource_group.rg.name
   location                     = azurerm_resource_group.rg.location
@@ -15,15 +15,15 @@ resource "azurerm_sql_server" "sql" {
 resource "azurerm_sql_database" "sqldb" {
   name                = "iisappdb"
   resource_group_name = azurerm_resource_group.rg.name
-  location            = azurerm_sql_server.sql.location
-  server_name         = azurerm_sql_server.sql.name
+  location            = azurerm_mssql_server.sql.location
+  server_name         = azurerm_mssql_server.sql.name
   sku_name            = "S0"
 }
 
 resource "azurerm_sql_firewall_rule" "allow_azure" {
   name                = "AllowAzureServices"
   resource_group_name = azurerm_resource_group.rg.name
-  server_name         = azurerm_sql_server.sql.name
+  server_name         = azurerm_mssql_server.sql.name
   start_ip_address    = "0.0.0.0"
   end_ip_address      = "0.0.0.0"
 }
