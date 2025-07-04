@@ -1,7 +1,7 @@
 ### Variable definitions for the ADO IIS .NET Deploy Terraform module ###
 
 variable "location" {
-  default = "East US"
+  default = "North Europe"
 }
 
 variable "resource_group_name" {
