@@ -1,0 +1,78 @@
+trigger:
+  - main
+
+pool:
+  vmImage: 'windows-latest'
+
+variables:
+  buildConfiguration: 'Release'
+  dotnetVersion: '9.0.x'
+  major: '1'
+  minor: '0'
+  hotfix: '0'
+  buildNumber: $[counter('ladvik-build', 1)]
+  appVersion: '$(major).$(minor).$(hotfix).$(buildNumber)'
+
+steps:
+  - task: UseDotNet@2
+    displayName: 'Install .NET SDK'
+    inputs:
+      packageType: 'sdk'
+      version: '$(dotnetVersion)'
+
+  - task: PowerShell@2
+    displayName: 'Update csproj version'
+    inputs:
+      targetType: 'inline'
+      script: |
+        $csproj = Get-ChildItem -Path "$(System.DefaultWorkingDirectory)" -Filter *.csproj -Recurse | Select-Object -First 1
+        [xml]$xml = Get-Content $csproj.FullName
+        $propertyGroup = $xml.Project.PropertyGroup | Where-Object { $_.Version }
+        if (-not $propertyGroup) {
+          $propertyGroup = $xml.CreateElement("PropertyGroup")
+          $xml.Project.AppendChild($propertyGroup) | Out-Null
+        }
+        if ($propertyGroup.Version) {
+          $propertyGroup.Version = '$(appVersion)'
+        } else {
+          $versionElement = $xml.CreateElement("Version")
+          $versionElement.InnerText = '$(appVersion)'
+          $propertyGroup.AppendChild($versionElement) | Out-Null
+        }
+        $xml.Save($csproj.FullName)
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Restore NuGet packages'
+    inputs:
+      command: 'restore'
+      projects: '**/*.csproj'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Build'
+    inputs:
+      command: 'build'
+      projects: '**/*.csproj'
+      arguments: '--configuration $(buildConfiguration)'
+
+  - task: DotNetCoreCLI@2
+    displayName: 'Publish'
+    inputs:
+      command: 'publish'
+      publishWebProjects: true
+      arguments: '--configuration $(buildConfiguration) --output $(Build.ArtifactStagingDirectory)'
+      zipAfterPublish: true
+
+  - task: PublishBuildArtifacts@1
+    displayName: 'Publish Artifact'
+    inputs:
+      PathtoPublish: '$(Build.ArtifactStagingDirectory)'
+      ArtifactName: 'drop'
+
+  - task: PowerShell@2
+    displayName: 'Deploy to IIS via WinRM'
+    inputs:
+      filePath: '$(System.DefaultWorkingDirectory)/devops/Scripts/deploy-to-iis.ps1'
+      arguments: '-SiteName "ladvik" -PackagePath "$(Build.ArtifactStagingDirectory)\*.zip" -IISServer "YOUR_IIS_SERVER" -Username "$(iisUsername)" -Password "$(iisPassword)"'
+      failOnStderr: true
+      pwsh: true
+    condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/main'))
