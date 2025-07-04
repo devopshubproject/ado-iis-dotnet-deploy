@@ -1,0 +1,20 @@
+- name: Copy SSL cert to IIS server
+  win_copy:
+    src: "{{ ssl_cert_local_path }}"
+    dest: "{{ ssl_cert_remote_path }}"
+
+- name: Import SSL certificate into Personal store
+  win_certificate_store:
+    path: "{{ ssl_cert_remote_path }}"
+    password: "{{ ssl_cert_password }}"
+    store_name: My
+    state: present
+  register: cert
+
+- name: Bind IIS website to HTTPS
+  win_iis_webbinding:
+    name: "{{ app_name }}"
+    protocol: https
+    port: "{{ site_port_https }}"
+    certificate_hash: "{{ cert.thumbprint }}"
+    certificate_store_name: My

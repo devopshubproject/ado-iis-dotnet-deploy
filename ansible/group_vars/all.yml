@@ -1,0 +1,5 @@
+azure_keyvault_name: "myKeyVault"
+azure_cert_secret_name: "my-ssl-cert"
+ssl_cert_password: "StrongPfxPassword"
+ssl_cert_local_path: "/tmp/ssl_cert.pfx"
+ssl_cert_remote_path: "C:\\temp\\ssl_cert.pfx"

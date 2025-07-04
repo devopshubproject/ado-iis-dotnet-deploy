@@ -1,0 +1,6 @@
+app_name: MyDotNetApp
+app_pool: MyAppPool
+site_port_http: 80
+site_port_https: 443
+hostname: www.example.com
+app_path: "C:\\inetpub\\wwwroot\\{{ app_name }}"

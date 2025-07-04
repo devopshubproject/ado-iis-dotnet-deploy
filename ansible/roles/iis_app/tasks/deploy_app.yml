@@ -1,0 +1,21 @@
+---
+- name: Copy web app package
+  win_copy:
+    src: site.zip
+    dest: C:\inetpub\wwwroot\site.zip
+
+- name: Unzip web app package
+  win_unzip:
+    src: C:\inetpub\wwwroot\site.zip
+    dest: "{{ app_path }}"
+    remove: yes
+
+- name: Create IIS website
+  win_iis_website:
+    name: "{{ app_name }}"
+    state: started
+    port: "{{ site_port_http }}"
+    physical_path: "{{ app_path }}"
+
+- name: Restart IIS to apply changes
+  win_shell: iisreset

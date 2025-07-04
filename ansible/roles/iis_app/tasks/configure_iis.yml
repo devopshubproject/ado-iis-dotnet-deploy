@@ -1,0 +1,54 @@
+---
+- name: Create IIS Application Pool
+  win_iis_webapppool:
+    name: "{{ app_pool }}"
+    state: started
+    managed_pipeline_mode: Integrated
+    managed_runtime_version: "v4.0"
+    identity_type: ApplicationPoolIdentity
+    start_mode: AlwaysRunning
+
+- name: Create IIS Website (HTTP)
+  win_iis_website:
+    name: "{{ app_name }}"
+    state: started
+    port: "{{ site_port_http }}"
+    ip: '*'
+    hostname: "{{ hostname }}"
+    physical_path: "{{ app_path }}"
+    application_pool: "{{ app_pool }}"
+
+- name: Create HTTPS Binding if certificate was imported
+  win_iis_webbinding:
+    name: "{{ app_name }}"
+    protocol: https
+    port: "{{ site_port_https }}"
+    hostname: "{{ hostname }}"
+    certificate_hash: "{{ cert.thumbprint }}"
+    certificate_store_name: My
+  when: cert is defined
+
+- name: Open HTTP port in Windows Firewall
+  win_firewall_rule:
+    name: "Allow HTTP inbound"
+    enable: yes
+    direction: in
+    localport: "{{ site_port_http }}"
+    protocol: tcp
+    action: allow
+
+- name: Open HTTPS port in Windows Firewall if SSL configured
+  win_firewall_rule:
+    name: "Allow HTTPS inbound"
+    enable: yes
+    direction: in
+    localport: "{{ site_port_https }}"
+    protocol: tcp
+    action: allow
+  when: cert is defined
+
+- name: Ensure IIS service is running and set to automatic start
+  win_service:
+    name: W3SVC
+    state: started
+    start_mode: automatic

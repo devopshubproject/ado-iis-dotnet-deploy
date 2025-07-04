@@ -30,3 +30,8 @@ output "connection_string" {
   value       = "Server=tcp:${azurerm_mssql_server.sql.fully_qualified_domain_name},1433;Database=${azurerm_mssql_database.db.name};User ID=${var.sql_admin_username};Password=${var.sql_admin_password};Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;"
   sensitive   = true
 }
+
+output "iis_server_ip" {
+  description = "Public IP address of the IIS server"
+  value       = azurerm_windows_virtual_machine.vm.public_ip_address
+}

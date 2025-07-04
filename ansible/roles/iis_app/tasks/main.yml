@@ -1,0 +1,5 @@
+---
+- import_tasks: install_iis.yml
+- import_tasks: configure_iis.yml
+- import_tasks: deploy_app.yml
+- import_tasks: configure_ssl.yml

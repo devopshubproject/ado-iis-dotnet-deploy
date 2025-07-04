@@ -1,0 +1,6 @@
+---
+- name: Deploy .NET Web Application on IIS
+  hosts: iis_servers
+  gather_facts: true
+  roles:
+    - iis_app
