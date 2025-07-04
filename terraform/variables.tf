@@ -34,6 +34,18 @@ variable "sub_address_space" {
   default     = ["10.0.1.0/24"]
 }
 
+variable "bastion_sub_name" {
+  description = "The name of the subnet for the Bastion Host."
+  type        = string
+  default     = "bastion-subnet"
+}
+
+variable "bastion_sub_address_space" {
+  description = "The address space for the Bastion Host subnet."
+  type        = list(string)
+  default     = ["10.0.2.0/24"]
+}
+
 variable "nsg_name" {
   description = "The name of the Network Security Group."
   type        = string
@@ -125,3 +137,44 @@ variable "os_disk_storage_account_type" {
   default     = "Standard_LRS"
 }
 
+variable "sql_server_name" {
+  description = "Name of the SQL Server"
+  type        = string
+  default     = "sql-server-example"
+}
+
+variable "sql_admin_username" {
+  description = "Administrator username for SQL Server"
+  type        = string
+  default     = "sqladmin"
+}
+
+variable "sql_admin_password" {
+  description = "Administrator password for SQL Server"
+  type        = string
+  sensitive   = true
+  default     = "P@ssw0rd123!"
+}
+
+variable "database_name" {
+  description = "Name of the SQL Database"
+  type        = string
+  default     = "mydatabase"
+}
+
+variable "database_max_size_gb" {
+  description = "Maximum size of the database in GB"
+  type        = number
+  default     = 10
+}
+
+variable "database_sku_name" {
+  description = "SKU name for the database"
+  type        = string
+  default     = "S0"
+}
+variable "my_ip_address" {
+  description = "Your IP address for firewall rule"
+  type        = string
+  default     = "0.0.0.0"
+}
