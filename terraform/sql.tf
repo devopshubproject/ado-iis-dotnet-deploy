@@ -14,7 +14,7 @@ resource "azurerm_mssql_server" "sql" {
   tags = local.common_tags
 }
 
-resource "azurerm_mssql_database" "main" {
+resource "azurerm_mssql_database" "db" {
   name         = var.database_name
   server_id    = azurerm_mssql_server.sql.id
   collation    = "SQL_Latin1_General_CP1_CI_AS"
@@ -26,7 +26,7 @@ resource "azurerm_mssql_database" "main" {
 }
 resource "azurerm_mssql_firewall_rule" "allow_azure_services" {
   name             = "AllowAzureServices"
-  server_id        = azurerm_mssql_server.main.id
+  server_id        = azurerm_mssql_server.sql.id
   start_ip_address = "0.0.0.0"
   end_ip_address   = "0.0.0.0"
 }
