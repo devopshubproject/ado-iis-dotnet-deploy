@@ -1,0 +1,16 @@
+- name: Download SSL cert from Azure Key Vault
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+    - name: Download certificate secret from Key Vault
+      azure.azcollection.azure_keyvault_secret:
+        name: "{{ azure_cert_secret_name }}"
+        keyvault_uri: "https://{{ azure_keyvault_name }}.vault.azure.net/"
+      register: cert_secret
+
+    - name: Decode and write PFX to file
+      copy:
+        content: "{{ cert_secret.value | b64decode }}"
+        dest: "{{ ssl_cert_local_path }}"
+        mode: '0600'

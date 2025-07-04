@@ -1,9 +1,9 @@
 ## 1. Azure DevOps Pipeline Setup
 
 ### Prerequisites
-- Azure DevOps Project with Repos configured.
-- A Windows Server VM with IIS, agent installed and configured as a self-hosted agent.
-- IIS server has the target site and bindings set up in advance.
+- Azure DevOps Project with configured repos.
+- A virtual machine running Windows Server with IIS installed and set up as a self-hosted agent.
+- The target site and bindings are already configured on the IIS server.
 
 ### Folder Structure (Repo)
 ```
