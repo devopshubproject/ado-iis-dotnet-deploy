@@ -140,7 +140,7 @@ variable "os_disk_storage_account_type" {
 variable "sql_server_name" {
   description = "Name of the SQL Server"
   type        = string
-  default     = "sql-server-example"
+  default     = "iis-sql-server"
 }
 
 variable "sql_admin_username" {
@@ -159,7 +159,7 @@ variable "sql_admin_password" {
 variable "database_name" {
   description = "Name of the SQL Database"
   type        = string
-  default     = "mydatabase"
+  default     = "iisdb"
 }
 
 variable "database_max_size_gb" {
