@@ -50,7 +50,7 @@ variable "allocation_method" {
   description = "The allocation method for the Public IP."
   type        = string
   default     = "Static"
-
+  
 }
 
 variable "pip_sku" {
@@ -106,3 +106,22 @@ variable "provision_vm_agent" {
   type        = bool
   default     = true
 }
+
+variable "enable_automatic_updates" {
+  description = "Whether to enable automatic updates on the VM."
+  type        = bool
+  default     = true
+}
+
+variable "os_disk_caching" {
+  description = "The caching type for the OS disk."
+  type        = string
+  default     = "ReadWrite"
+}
+
+variable "os_disk_storage_account_type" {
+  description = "The storage account type for the OS disk."
+  type        = string
+  default     = "Standard_LRS"
+}
+
