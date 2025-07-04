@@ -54,16 +54,29 @@ jobs:
       - name: Restore NuGet packages
         shell: pwsh
         run: |
-          $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj | ForEach-Object { $_.FullName }
-          foreach ($proj in $projects) {
-            dotnet restore "$proj"
-          }
+          Get-ChildItem -Path "${{ github.workspace }}" -Recurse -Filter *.csproj |
+            ForEach-Object {
+              Write-Host "Restoring $($_.FullName)"
+              dotnet restore $_.FullName
+            }
 
-      - name: Build
-        run: dotnet build **/*.csproj --configuration ${{ env.buildConfiguration }}
 
-      - name: Publish
-        run: dotnet publish **/*.csproj --configuration ${{ env.buildConfiguration }} --output ${{ github.workspace }}\publish
+      - name: Build all projects
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "${{ github.workspace }}" -Recurse -Filter *.csproj |
+            ForEach-Object {
+              dotnet build $_.FullName --configuration ${{ env.buildConfiguration }}
+            }
+
+      - name: Publish all projects
+        shell: pwsh
+        run: |
+          Get-ChildItem -Path "${{ github.workspace }}" -Recurse -Filter *.csproj |
+            ForEach-Object {
+              dotnet publish $_.FullName --configuration ${{ env.buildConfiguration }} --output ${{ github.workspace }}\publish\$(Split-Path $_.Name -LeafBase)
+            }
+
 
       - name: Zip published output
         run: Compress-Archive -Path ${{ github.workspace }}\publish\* -DestinationPath ${{ github.workspace }}\publish\app.zip
