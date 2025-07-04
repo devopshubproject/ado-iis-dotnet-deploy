@@ -2,8 +2,8 @@ name: .NET IIS Deploy
 
 on:
   push:
-    branches:
-      - main
+    paths:
+      - ./app/**
 
 env:
   buildConfiguration: Release
