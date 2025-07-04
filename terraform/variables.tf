@@ -50,7 +50,7 @@ variable "allocation_method" {
   description = "The allocation method for the Public IP."
   type        = string
   default     = "Static"
-  
+
 }
 
 variable "pip_sku" {
