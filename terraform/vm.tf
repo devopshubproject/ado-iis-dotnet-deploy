@@ -1,14 +1,14 @@
 ### VM Configuration for IIS Server
 
 resource "azurerm_windows_virtual_machine" "vm" {
-  name                  = var.vm_name
-  location              = azurerm_resource_group.rg.location
-  resource_group_name   = azurerm_resource_group.rg.name
-  size                  = var.vm_size
-  admin_username        = var.vm_admin_username
-  admin_password        = var.vm_admin_password
-  network_interface_ids = [azurerm_network_interface.nic.id]
-  provision_vm_agent    = var.provision_vm_agent
+  name                     = var.vm_name
+  location                 = azurerm_resource_group.rg.location
+  resource_group_name      = azurerm_resource_group.rg.name
+  size                     = var.vm_size
+  admin_username           = var.vm_admin_username
+  admin_password           = var.vm_admin_password
+  network_interface_ids    = [azurerm_network_interface.nic.id]
+  provision_vm_agent       = var.provision_vm_agent
   enable_automatic_updates = var.enable_automatic_updates
 
   os_disk {
@@ -23,7 +23,7 @@ resource "azurerm_windows_virtual_machine" "vm" {
     version   = "latest"
   }
 
-tags = local.common_tags
+  tags = local.common_tags
 }
 
 resource "azurerm_virtual_machine_extension" "iis" {

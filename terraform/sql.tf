@@ -10,8 +10,8 @@ resource "azurerm_sql_server" "sql" {
 
   identity {
     type = "SystemAssigned"
-    }
-
+  }
+}
 resource "azurerm_sql_database" "sqldb" {
   name                = "iisappdb"
   resource_group_name = azurerm_resource_group.rg.name
