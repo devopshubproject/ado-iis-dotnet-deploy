@@ -8,6 +8,16 @@ on:
     paths:
       - "terraform/**"
       - "*.tf"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Terraform Action'
+        required: true
+        default: 'apply'
+        type: choice
+        options:
+          - apply
+          - destroy
 
 env:
   TERRAFORM_VERSION: 1.10.5
@@ -97,6 +107,10 @@ jobs:
       - name: Terraform Init
         run: terraform init -input=false
 
-      - name: Terraform Apply
+      - name: Terraform Apply or Destroy
         run: |
-          terraform apply -auto-approve tfplan
+          if [[ "${{ github.event.inputs.action }}" == "destroy" ]]; then
+            terraform destroy -auto-approve
+          else
+            terraform apply -auto-approve tfplan
+          fi
