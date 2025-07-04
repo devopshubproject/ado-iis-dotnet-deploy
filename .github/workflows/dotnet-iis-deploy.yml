@@ -1,0 +1,78 @@
+
+name: .NET IIS Deploy
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  buildConfiguration: Release
+  dotnetVersion: '9.0.x'
+  major: '1'
+  minor: '0'
+  hotfix: '0'
+
+jobs:
+  build-and-deploy:
+    runs-on: windows-latest
+    env:
+      buildNumber: ${{ github.run_number }}
+      appVersion: ${{ env.major }}.${{ env.minor }}.${{ env.hotfix }}.${{ github.run_number }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup .NET SDK
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.dotnetVersion }}
+
+      - name: Update csproj version
+        shell: pwsh
+        run: |
+          $csproj = Get-ChildItem -Path "${{ github.workspace }}" -Filter *.csproj -Recurse | Select-Object -First 1
+          [xml]$xml = Get-Content $csproj.FullName
+          $propertyGroup = $xml.Project.PropertyGroup | Where-Object { $_.Version }
+          if (-not $propertyGroup) {
+            $propertyGroup = $xml.CreateElement("PropertyGroup")
+            $xml.Project.AppendChild($propertyGroup) | Out-Null
+          }
+          if ($propertyGroup.Version) {
+            $propertyGroup.Version = '${{ env.appVersion }}'
+          } else {
+            $versionElement = $xml.CreateElement("Version")
+            $versionElement.InnerText = '${{ env.appVersion }}'
+            $propertyGroup.AppendChild($versionElement) | Out-Null
+          }
+          $xml.Save($csproj.FullName)
+
+      - name: Restore NuGet packages
+        run: dotnet restore **/*.csproj
+
+      - name: Build
+        run: dotnet build **/*.csproj --configuration ${{ env.buildConfiguration }}
+
+      - name: Publish
+        run: dotnet publish **/*.csproj --configuration ${{ env.buildConfiguration }} --output ${{ github.workspace }}\publish
+
+      - name: Zip published output
+        run: Compress-Archive -Path ${{ github.workspace }}\publish\* -DestinationPath ${{ github.workspace }}\publish\app.zip
+        shell: pwsh
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: drop
+          path: ${{ github.workspace }}\publish\app.zip
+
+      # - name: Deploy to IIS via WinRM
+      #   if: github.ref == 'refs/heads/main'
+      #   shell: pwsh
+      #   env:
+      #     IIS_USERNAME: ${{ secrets.IIS_USERNAME }}
+      #     IIS_PASSWORD: ${{ secrets.IIS_PASSWORD }}
+      #   run: |
+      #     $username = $env:IIS_USERNAME
+      #     $password = $env:IIS_PASSWORD
+      #     & '${{ github.workspace }}/devops/Scripts/deploy-to-iis.ps1' -SiteName "ladvik" -PackagePath "${{ github.workspace }}\publish\app.zip" -IISServer "YOUR_IIS_SERVER" -Username $username -Password $password
