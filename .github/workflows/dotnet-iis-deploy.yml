@@ -52,7 +52,12 @@ jobs:
           $xml.Save($csproj.FullName)
 
       - name: Restore NuGet packages
-        run: dotnet restore **/*.csproj
+        shell: pwsh
+        run: |
+          $projects = Get-ChildItem -Path . -Recurse -Filter *.csproj | ForEach-Object { $_.FullName }
+          foreach ($proj in $projects) {
+            dotnet restore "$proj"
+          }
 
       - name: Build
         run: dotnet build **/*.csproj --configuration ${{ env.buildConfiguration }}
